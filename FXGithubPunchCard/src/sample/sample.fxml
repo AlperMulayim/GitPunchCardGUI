@@ -49,6 +49,7 @@
          </children>
       </VBox>
       <TextField fx:id="txtFieldUser" layoutX="386.0" layoutY="23.0" promptText="username" />
-      <ListView fx:id="listViewRepos" layoutX="374.0" layoutY="84.0" prefHeight="379.0" prefWidth="279.0" />
+      <ListView fx:id="listViewRepos" layoutX="374.0" layoutY="84.0" prefHeight="328.0" prefWidth="285.0" />
+      <Button fx:id="btnRepoDetails" layoutX="374.0" layoutY="412.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="285.0" text="Show Details" />
    </children>
 </AnchorPane>

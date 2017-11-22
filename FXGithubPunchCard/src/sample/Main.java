@@ -55,6 +55,7 @@ public class Main extends Application {
     private Text txtRepo;
     private TextField txtFieldUser;
     private ListView listView;
+    private Button btnRepoDetails;
 
     private ScheduledExecutorService requestExecutor;
     private ScheduledExecutorService userImageRequest;
@@ -283,7 +284,7 @@ public class Main extends Application {
 
         //buttons
         btnGetUser = (Button) root.lookup("#btnGetUser");
-
+        btnRepoDetails = (Button) root.lookup("#btnRepoDetails");
         //text
         //txtArea = (TextArea) root.lookup("#txtArea");
         txtStatus = (Text) root.lookup("#txtStatus");
@@ -299,7 +300,7 @@ public class Main extends Application {
         txtFieldUser = (TextField) root.lookup("#txtFieldUser");
 
         listView = (ListView) root.lookup("#listViewRepos");
-        listView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
     }
 
@@ -312,6 +313,14 @@ public class Main extends Application {
             @Override
             public void handle(ActionEvent event) {
                userRequesting();
+            }
+        });
+
+        btnRepoDetails.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                ObservableList <String> selectedRepo = getListViewSelections();
+                txtStatus.setText(selectedRepo.get(0));
             }
         });
     }
