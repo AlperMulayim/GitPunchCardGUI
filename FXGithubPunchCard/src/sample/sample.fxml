@@ -11,8 +11,6 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="482.0" prefWidth="673.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Button fx:id="btnGetUser" layoutX="570.0" layoutY="23.0" mnemonicParsing="false" text="SearchUser" />
-      <Text fx:id="txtStatus" layoutX="390.0" layoutY="68.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Status" wrappingWidth="268.99999848380685" />
       <VBox layoutX="14.0" layoutY="53.0" prefHeight="391.0" prefWidth="189.0">
          <children>
             <ImageView fx:id="imgView" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
@@ -46,10 +44,20 @@
                   </HBox>
                </children>
             </VBox>
+            <Text fx:id="txtStatus" strokeType="OUTSIDE" strokeWidth="0.0" text="Status" wrappingWidth="219.99999848380685" />
          </children>
       </VBox>
-      <TextField fx:id="txtFieldUser" layoutX="386.0" layoutY="23.0" promptText="username" />
-      <ListView fx:id="listViewRepos" layoutX="374.0" layoutY="84.0" prefHeight="328.0" prefWidth="285.0" />
-      <Button fx:id="btnRepoDetails" layoutX="374.0" layoutY="412.0" mnemonicParsing="false" prefHeight="54.0" prefWidth="285.0" text="Show Details" />
+      <VBox layoutX="245.0" layoutY="5.0" prefHeight="472.0" prefWidth="350.0">
+         <children>
+            <HBox prefHeight="55.0" prefWidth="376.0">
+               <children>
+                  <TextField fx:id="txtFieldUser" prefHeight="40.0" prefWidth="268.0" promptText="username" />
+                  <Button fx:id="btnGetUser" mnemonicParsing="false" prefHeight="40.0" prefWidth="105.0" text="SearchUser" />
+               </children>
+            </HBox>
+            <ListView fx:id="listViewRepos" prefHeight="372.0" prefWidth="350.0" />
+            <Button fx:id="btnRepoDetails" mnemonicParsing="false" prefHeight="66.0" prefWidth="350.0" text="Show Details" />
+         </children>
+      </VBox>
    </children>
 </AnchorPane>

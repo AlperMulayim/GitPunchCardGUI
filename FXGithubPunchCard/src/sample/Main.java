@@ -12,12 +12,16 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -44,6 +48,7 @@ public class Main extends Application {
     private  JSONObject jsonObject;
     private JSONArray repoJsonArray;
     private Parent root;
+    private  Parent repoRoot;
     private Button btnGetUser;
     private TextArea txtArea;
     private Text txtStatus;
@@ -61,10 +66,13 @@ public class Main extends Application {
     private ScheduledExecutorService userImageRequest;
     private  ScheduledExecutorService repoRequest;
 
+    private String userRepoDetails;
+
+
     @Override
     public void start(Stage primaryStage) throws Exception{
          root = FXMLLoader.load(getClass().getResource("sample.fxml"));
-        primaryStage.setTitle("Hello World");
+        primaryStage.setTitle("GitHub PunchCard");
         primaryStage.setScene(new Scene(root, 670, 480));
         primaryStage.show();
 
@@ -109,60 +117,64 @@ public class Main extends Application {
 
         String userName = txtFieldUser.getText();
 
-        URL  url = new URL("https://api.github.com/users/" + userName);
-        HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
+        if(!txtFieldUser.getText().isEmpty()) {
+            URL url = new URL("https://api.github.com/users/" + userName);
+            HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
 
-        httpConnection.setDoOutput(true);
+            httpConnection.setDoOutput(true);
 
-        httpConnection.setRequestMethod("GET");
-        //System.out.println("RESPONSE :: " + httpConnection.getResponseCode());
-        txtStatus.setText("Response : " + httpConnection.getResponseCode());
+            httpConnection.setRequestMethod("GET");
+            //System.out.println("RESPONSE :: " + httpConnection.getResponseCode());
+            txtStatus.setText("Response : " + httpConnection.getResponseCode());
 
 
-        InputStreamReader reader = new InputStreamReader(httpConnection.getInputStream());
+            InputStreamReader reader = new InputStreamReader(httpConnection.getInputStream());
 
-        StringBuilder strB = new StringBuilder();
+            StringBuilder strB = new StringBuilder();
 
-        BufferedReader bufferedReader = new BufferedReader(reader);
+            BufferedReader bufferedReader = new BufferedReader(reader);
 
-        if(bufferedReader != null){
-            int cp;
-            while ((cp = bufferedReader.read()) != -1){
-                strB.append((char) cp);
+            if (bufferedReader != null) {
+                int cp;
+                while ((cp = bufferedReader.read()) != -1) {
+                    strB.append((char) cp);
+                }
+                bufferedReader.close();
             }
-            bufferedReader.close();
-        }
 
-        //txtArea.setText(strB.toString());
+            //txtArea.setText(strB.toString());
 
 
-        JSONParser jsonParser = new JSONParser();
-        jsonObject = (JSONObject) jsonParser.parse(strB.toString());
+            JSONParser jsonParser = new JSONParser();
+            jsonObject = (JSONObject) jsonParser.parse(strB.toString());
 
 
-        String repoStr = (String) jsonObject.get("repos_url");
+            String repoStr = (String) jsonObject.get("repos_url");
 
 
-        userImageRequest = Executors.newSingleThreadScheduledExecutor();
-        userImageRequest.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            userImageHttpRequesting();
-                        } catch (IOException e) {
-                            e.printStackTrace();
+            userImageRequest = Executors.newSingleThreadScheduledExecutor();
+            userImageRequest.scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    Platform.runLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                userImageHttpRequesting();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
-                    }
-                });
-            }
-        },0,100,TimeUnit.SECONDS);
+                    });
+                }
+            }, 0, 100, TimeUnit.SECONDS);
 
-        repoRequest(repoStr);
-        createUser();
-
+            repoRequest(repoStr);
+            createUser();
+        }
+        else {
+            txtStatus.setText("User Field is Empty");
+        }
 
     }
 
@@ -214,6 +226,7 @@ public class Main extends Application {
             bufferedReader.close();
         }
 
+        userRepoDetails = strB.toString();
         httpURLConnection.disconnect();
         repoRequest.shutdownNow();
 
@@ -321,6 +334,24 @@ public class Main extends Application {
             public void handle(ActionEvent event) {
                 ObservableList <String> selectedRepo = getListViewSelections();
                 txtStatus.setText(selectedRepo.get(0));
+
+                try {
+                    repoRoot = FXMLLoader.load(getClass().getResource("repodetails.fxml"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Stage repoStage = new Stage();
+                repoStage.setTitle("Repo");
+                repoStage.setScene(new Scene(repoRoot, 670, 480));
+                repoStage.show();
+
+                WindowsNotificator notificator = new WindowsNotificator();
+                try {
+                    notificator.sendNotification("alepr","alpermulayim");
+                } catch (AWTException e) {
+                    e.printStackTrace();
+                }
+
             }
         });
     }
