@@ -31,6 +31,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.Buffer;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -62,18 +63,20 @@ public class Main extends Application {
     private ListView listView;
     private Button btnRepoDetails;
 
-    private ScheduledExecutorService requestExecutor;
-    private ScheduledExecutorService userImageRequest;
-    private  ScheduledExecutorService repoRequest;
+    private ExecutorService requestExecutor;
+    private ExecutorService userImageRequest;
+    private ExecutorService repoRequest;
 
     private String userRepoDetails;
 
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-         root = FXMLLoader.load(getClass().getResource("sample.fxml"));
+        root = FXMLLoader.load(getClass().getResource("sample.fxml"));
         primaryStage.setTitle("GitHub PunchCard");
         primaryStage.setScene(new Scene(root, 670, 480));
+
+        primaryStage.setResizable(false);
         primaryStage.show();
 
         prepareGUIElements();
@@ -90,24 +93,23 @@ public class Main extends Application {
     }
 
     public void userRequesting() {
-        requestExecutor   = Executors.newSingleThreadScheduledExecutor();
-        requestExecutor.scheduleAtFixedRate(new Runnable() {
+        requestExecutor   = Executors.newSingleThreadExecutor();
+
+        Runnable task = new Runnable() {
             @Override
             public void run() {
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            userHTTPRequest();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+                try {
+                    userHTTPRequest();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
-        },0,10,TimeUnit.SECONDS);
+        };
+
+        requestExecutor.execute(task);
+        requestExecutor.shutdown();
 
     }
 
@@ -152,23 +154,20 @@ public class Main extends Application {
             String repoStr = (String) jsonObject.get("repos_url");
 
 
-            userImageRequest = Executors.newSingleThreadScheduledExecutor();
-            userImageRequest.scheduleAtFixedRate(new Runnable() {
+            userImageRequest = Executors.newSingleThreadExecutor();
+            Runnable task = new Runnable() {
                 @Override
                 public void run() {
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                userImageHttpRequesting();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
+                    try {
+                        userImageHttpRequesting();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }, 0, 100, TimeUnit.SECONDS);
+            };
 
+            userImageRequest.execute(task);
+            userImageRequest.shutdown();
             repoRequest(repoStr);
             createUser();
         }
@@ -179,27 +178,24 @@ public class Main extends Application {
     }
 
     public void repoRequest(String url){
-        repoRequest = Executors.newSingleThreadScheduledExecutor();
+        repoRequest = Executors.newSingleThreadExecutor();
         String theURL = url;
-        repoRequest.scheduleAtFixedRate(new Runnable() {
 
+        Runnable task = new Runnable() {
             @Override
             public void run() {
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            repoHttpRequesting(theURL);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+                try {
+                    repoHttpRequesting(theURL);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
-        },0,100,TimeUnit.MILLISECONDS);
+        };
 
+        repoRequest.execute(task);
+        repoRequest.shutdown();
 
 
     }
@@ -228,16 +224,24 @@ public class Main extends Application {
 
         userRepoDetails = strB.toString();
         httpURLConnection.disconnect();
-        repoRequest.shutdownNow();
 
         JSONParser jsonParser = new JSONParser();
         repoJsonArray= (JSONArray) jsonParser.parse(strB.toString());
 
-        listView.getItems().clear();
-        for(int i =0 ; i< repoJsonArray.size(); ++i){
-            JSONObject jsObj = (JSONObject) repoJsonArray.get(i);
-            listView.getItems().add(jsObj.get("name"));
-        }
+
+
+
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    listView.getItems().clear();
+                    for(int i =0 ; i< repoJsonArray.size(); ++i) {
+                        JSONObject jsObj = (JSONObject) repoJsonArray.get(i);
+                        listView.getItems().add(jsObj.get("name"));
+                    }
+
+                }
+            });
 
 
 
