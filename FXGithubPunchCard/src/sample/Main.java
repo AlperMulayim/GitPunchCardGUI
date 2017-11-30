@@ -67,7 +67,13 @@ public class Main extends Application {
     private ExecutorService userImageRequest;
     private ExecutorService repoRequest;
 
+
     private String userRepoDetails;
+
+    private  Stage repoStage;
+    private Text txtRepoName;
+    private Text txtRepoDesctiption;
+    private Text txtRepoLang;
 
 
     @Override
@@ -79,9 +85,16 @@ public class Main extends Application {
         primaryStage.setResizable(false);
         primaryStage.show();
 
+        repoRoot = FXMLLoader.load(getClass().getResource("repodetails.fxml"));
+         repoStage = new Stage();
+        repoStage.setTitle("Repo");
+        repoStage.setScene(new Scene(repoRoot, 670, 480));
+
         prepareGUIElements();
         textAreaOperations();
         buttonActions();
+
+
     }
 
 
@@ -208,7 +221,7 @@ public class Main extends Application {
         httpURLConnection.setRequestMethod("GET");
 
         // TODO: 20.11.2017  kill the thread
-        // TODO: 20.11.2017 put them to listviews 
+        // TODO: 20.11.2017 put them to listviews
         InputStreamReader reader = new InputStreamReader(httpURLConnection.getInputStream());
         BufferedReader bufferedReader = new BufferedReader(reader);
 
@@ -227,9 +240,6 @@ public class Main extends Application {
 
         JSONParser jsonParser = new JSONParser();
         repoJsonArray= (JSONArray) jsonParser.parse(strB.toString());
-
-
-
 
             Platform.runLater(new Runnable() {
                 @Override
@@ -319,7 +329,17 @@ public class Main extends Application {
         listView = (ListView) root.lookup("#listViewRepos");
         listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
+        /*******************************/
+        /*     REPO PAGE               */
+        /********************************/
+
+        txtRepoName = (Text) repoRoot.lookup("#txtRepoName");
+        txtRepoDesctiption = (Text) repoRoot.lookup("#txtRepoDetail");
+        txtRepoLang = (Text) repoRoot.lookup("#txtRepoLang");
+
     }
+
+
 
     public void  textAreaOperations(){
      //   txtArea.setEditable(false);
@@ -336,34 +356,39 @@ public class Main extends Application {
         btnRepoDetails.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                ObservableList <String> selectedRepo = getListViewSelections();
-                txtStatus.setText(selectedRepo.get(0));
 
-                try {
-                    repoRoot = FXMLLoader.load(getClass().getResource("repodetails.fxml"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                Stage repoStage = new Stage();
-                repoStage.setTitle("Repo");
-                repoStage.setScene(new Scene(repoRoot, 670, 480));
-                repoStage.show();
-
-                WindowsNotificator notificator = new WindowsNotificator();
-                try {
-                    notificator.sendNotification("alepr","alpermulayim");
-                } catch (AWTException e) {
-                    e.printStackTrace();
-                }
+                repoDetailPageSetting();
 
             }
         });
+    }
+
+    public void repoDetailPageSetting(){
+        ObservableList <String> selectedRepo = getListViewSelections();
+        txtStatus.setText(selectedRepo.get(0));
+        txtRepoName.setText(selectedRepo.get(0));
+        JSONObject jsonObject = getSelectedRepoJson(selectedRepo.get(0));
+
+        txtRepoDesctiption.setText((String) jsonObject.get("description"));
+        txtRepoLang.setText((String) jsonObject.get("language"));
+        repoStage.show();
     }
 
     public ObservableList<String> getListViewSelections(){
         ObservableList<String> observableList;
         observableList = listView.getSelectionModel().getSelectedItems();
         return  observableList;
+    }
+
+    public JSONObject getSelectedRepoJson(String repoName){
+        JSONObject result = null;
+        for(int i = 0 ; i < repoJsonArray.size(); ++i){
+            JSONObject jsonObject = (JSONObject) repoJsonArray.get(i);
+            if(repoName.equals(jsonObject.get("name"))){
+                result = jsonObject;
+            }
+        }
+        return result;
     }
 }
 
