@@ -66,6 +66,7 @@ public class Main extends Application {
     private ExecutorService requestExecutor;
     private ExecutorService userImageRequest;
     private ExecutorService repoRequest;
+    private ExecutorService commitRequestExecutor;
 
 
     private String userRepoDetails;
@@ -75,6 +76,7 @@ public class Main extends Application {
     private Text txtRepoDesctiption;
     private Text txtRepoLang;
 
+    private JSONArray commitsJsonArr;
 
     @Override
     public void start(Stage primaryStage) throws Exception{
@@ -356,9 +358,7 @@ public class Main extends Application {
         btnRepoDetails.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-
                 repoDetailPageSetting();
-
             }
         });
     }
@@ -369,9 +369,21 @@ public class Main extends Application {
         txtRepoName.setText(selectedRepo.get(0));
         JSONObject jsonObject = getSelectedRepoJson(selectedRepo.get(0));
 
-        txtRepoDesctiption.setText((String) jsonObject.get("description"));
+        //txtRepoDesctiption.setText((String) jsonObject.get("description"));
         txtRepoLang.setText((String) jsonObject.get("language"));
         repoStage.show();
+
+        String commitsURL = (String) jsonObject.get("commits_url");
+        commitsURL = commitsURL.substring(0,commitsURL.length() - 6);
+
+        System.out.println(commitsURL);
+
+
+        commitRequest(commitsURL);
+
+
+        // TODO: 30.11.2017 add the commit request here
+
     }
 
     public ObservableList<String> getListViewSelections(){
@@ -390,6 +402,75 @@ public class Main extends Application {
         }
         return result;
     }
+
+    public void commitRequest(String commitURL){
+        commitRequestExecutor = Executors.newSingleThreadExecutor();
+
+        Runnable task = new Runnable() {
+            String url = commitURL;
+            @Override
+            public void run() {
+                try {
+                    commitHttpRequest(url);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        commitRequestExecutor.execute(task);
+        commitRequestExecutor.shutdown();
+    }
+
+    public  void commitHttpRequest(String urlStr) throws IOException, ParseException {
+
+        URL url = new URL(urlStr);
+        HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
+
+        httpConnection.setDoOutput(true);
+
+        httpConnection.setRequestMethod("GET");
+        //System.out.println("RESPONSE :: " + httpConnection.getResponseCode());
+        txtStatus.setText("Response : " + httpConnection.getResponseCode());
+
+
+        InputStreamReader reader = new InputStreamReader(httpConnection.getInputStream());
+
+        StringBuilder strB = new StringBuilder();
+
+        BufferedReader bufferedReader = new BufferedReader(reader);
+
+        if (bufferedReader != null) {
+            int cp;
+            while ((cp = bufferedReader.read()) != -1) {
+                strB.append((char) cp);
+            }
+            bufferedReader.close();
+        }
+
+
+        JSONParser jsonParser = new JSONParser();
+        commitsJsonArr = (JSONArray) jsonParser.parse(strB.toString());
+        commitShowing();
+    }
+
+    public void commitShowing(){
+        JSONObject jsonObj = (JSONObject) commitsJsonArr.get(2);
+        JSONObject jsonObjCommit = (JSONObject) jsonObj.get("commit");
+        
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                txtRepoDesctiption.setText((String) jsonObjCommit.get("message"));
+            }
+        });
+
+    }
 }
 
+
+
+//https://api.github.com/repos/AlperMulayim/OperatingSystem/commits
 

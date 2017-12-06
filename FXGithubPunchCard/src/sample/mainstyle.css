@@ -1,0 +1,27 @@
+.button-search{
+    -fx-text-fill:#E1F5FE ;
+    -fx-background-color: #03A9F4;
+    -fx-font-weight: bold;
+}
+.button-show{
+    -fx-text-fill:#E1F5FE ;
+    -fx-background-color: #03A9F4;
+    -fx-font-weight: bold;
+}
+
+.image-sty{
+    -fx-image: url("../images/login.png");
+}
+
+.background{
+    -fx-background-image: url("../images/background.png");
+}
+
+.user-fonts{
+    -fx-font: 14px "sans-serif";
+    -fx-font-weight: bold;
+    -fx-background-color: transparent;
+}
+
+
+
