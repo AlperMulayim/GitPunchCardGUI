@@ -7,31 +7,36 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="754.0" prefWidth="1052.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="754.0" prefWidth="1052.0" styleClass="background" stylesheets="@repopagestyle.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <VBox layoutX="10.0" layoutY="10.0" prefHeight="82.0" prefWidth="1050.0">
+      <VBox prefHeight="754.0" prefWidth="1052.0">
          <children>
-            <HBox prefHeight="57.0" prefWidth="1050.0">
+            <VBox prefHeight="82.0" prefWidth="1050.0">
                <children>
-                  <Text fx:id="txtRepoName" strokeType="OUTSIDE" strokeWidth="0.0" text="RepoName" textAlignment="CENTER" wrappingWidth="911.826171875">
+                  <HBox prefHeight="57.0" prefWidth="1050.0">
+                     <children>
+                        <Text fx:id="txtRepoName" strokeType="OUTSIDE" strokeWidth="0.0" text="RepoName" textAlignment="CENTER" wrappingWidth="911.826171875">
+                           <font>
+                              <Font size="24.0" />
+                           </font>
+                        </Text>
+                        <Text fx:id="txtRepoLang" opacity="0.46" strokeType="OUTSIDE" strokeWidth="0.0" text="Lang." textAlignment="CENTER" wrappingWidth="103.826171875">
+                           <font>
+                              <Font size="36.0" />
+                           </font>
+                        </Text>
+                     </children>
+                  </HBox>
+                  <Text fx:id="txtRepoDetail" opacity="0.53" strokeType="OUTSIDE" strokeWidth="0.0" text="REPO DETAILS" wrappingWidth="1049.0">
                      <font>
-                        <Font size="24.0" />
+                        <Font size="16.0" />
                      </font>
                   </Text>
-                  <Text fx:id="txtRepoLang" opacity="0.46" strokeType="OUTSIDE" strokeWidth="0.0" text="Lang." textAlignment="CENTER" wrappingWidth="103.826171875">
-                     <font>
-                        <Font size="36.0" />
-                     </font>
-                  </Text>
+                  <Text fx:id="txtCommitCount" strokeType="OUTSIDE" strokeWidth="0.0" text="Commit Count" wrappingWidth="1050.826171875" />
                </children>
-            </HBox>
-            <Text fx:id="txtRepoDetail" opacity="0.53" strokeType="OUTSIDE" strokeWidth="0.0" text="REPO DETAILS" wrappingWidth="1049.0">
-               <font>
-                  <Font size="16.0" />
-               </font>
-            </Text>
+            </VBox>
+            <TableView fx:id="tableVRepo" prefHeight="340.0" prefWidth="980.0" />
          </children>
       </VBox>
-      <TableView fx:id="tableVRepo" layoutX="33.0" layoutY="111.0" prefHeight="358.0" prefWidth="965.0" />
    </children>
 </AnchorPane>

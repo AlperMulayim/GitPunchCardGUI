@@ -42,7 +42,7 @@ public class RepoPage {
     private String repoName;
     private ExecutorService commitRequestExecutor;
     private TableView<Commit> tableView;
-
+    private Text txtCommitCount;
 
 
 
@@ -68,6 +68,7 @@ public class RepoPage {
         txtRepoDesctiption = (Text) repoRoot.lookup("#txtRepoDetail");
         txtRepoLang = (Text) repoRoot.lookup("#txtRepoLang");
         tableView = (TableView) repoRoot.lookup("#tableVRepo");
+        txtCommitCount = (Text) repoRoot.lookup("#txtCommitCount");
 
         txtRepoLang.setText("*");
         repoDetailPageSetting();
@@ -101,9 +102,10 @@ public class RepoPage {
     public ObservableList<Commit> getCommitList(){
          ObservableList<Commit> commitList = FXCollections.observableArrayList();
 
-        for(int i = 0 ; i< commitsJsonArr.size(); ++i){
-            JSONObject jsonObject = (JSONObject) commitsJsonArr.get(i);
 
+        for(int i = 0 ; i< commitsJsonArr.size(); ++i){
+            txtCommitCount.setText("There is " + commitsJsonArr.size() + " commit .");
+            JSONObject jsonObject = (JSONObject) commitsJsonArr.get(i);
 
             JSONObject commitObj = (JSONObject) jsonObject.get("commit");
             JSONObject committerObj = (JSONObject) commitObj.get("committer");
@@ -188,6 +190,7 @@ public class RepoPage {
         dateColumn.setCellValueFactory(new PropertyValueFactory<Commit, String>("date"));
 
         TableColumn<Commit,String> messageColumn = new TableColumn<>("Commit");
+        dateColumn.setMinWidth(200);
         messageColumn.setCellValueFactory(new PropertyValueFactory<Commit, String>("message"));
 
         tableView.setItems(getCommitList());
