@@ -6,6 +6,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
@@ -182,8 +183,17 @@ public class RepoPage {
         nameColumn.setMinWidth(80);
         nameColumn.setCellValueFactory(new PropertyValueFactory<Commit, String>("committer"));
 
+        TableColumn<Commit,String> dateColumn = new TableColumn<>("Date");
+        dateColumn.setMinWidth(80);
+        dateColumn.setCellValueFactory(new PropertyValueFactory<Commit, String>("date"));
+
+        TableColumn<Commit,String> messageColumn = new TableColumn<>("Commit");
+        messageColumn.setCellValueFactory(new PropertyValueFactory<Commit, String>("message"));
+
         tableView.setItems(getCommitList());
-        tableView.getColumns().addAll(nameColumn);
+        tableView.getColumns().addAll(dateColumn,nameColumn,messageColumn);
+
+
 
     }
 }
