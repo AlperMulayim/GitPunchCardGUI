@@ -1,7 +1,4 @@
 package sample;
-
-
-
 import java.awt.*;
 
 /**

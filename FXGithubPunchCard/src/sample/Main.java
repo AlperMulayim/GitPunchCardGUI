@@ -1,7 +1,5 @@
 package sample;
 
-import com.sun.deploy.net.HttpResponse;
-import com.sun.deploy.util.StringUtils;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -19,22 +17,14 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
-
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.Buffer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -46,7 +36,7 @@ import javax.imageio.ImageIO;
 
 public class Main extends Application {
 
-    private  JSONObject jsonObject;
+    private JSONObject jsonObject;
     private JSONArray repoJsonArray;
     private Parent root;
     private  Parent repoRoot;
@@ -66,17 +56,11 @@ public class Main extends Application {
     private ExecutorService requestExecutor;
     private ExecutorService userImageRequest;
     private ExecutorService repoRequest;
-    private ExecutorService commitRequestExecutor;
 
 
+    private  RepoPage repoPage;
     private String userRepoDetails;
 
-    private  Stage repoStage;
-    private Text txtRepoName;
-    private Text txtRepoDesctiption;
-    private Text txtRepoLang;
-
-    private JSONArray commitsJsonArr;
 
     @Override
     public void start(Stage primaryStage) throws Exception{
@@ -87,15 +71,9 @@ public class Main extends Application {
         primaryStage.setResizable(false);
         primaryStage.show();
 
-        repoRoot = FXMLLoader.load(getClass().getResource("repodetails.fxml"));
-         repoStage = new Stage();
-        repoStage.setTitle("Repo");
-        repoStage.setScene(new Scene(repoRoot, 670, 480));
-
         prepareGUIElements();
         textAreaOperations();
         buttonActions();
-
 
     }
 
@@ -128,10 +106,7 @@ public class Main extends Application {
 
     }
 
-
     public  void userHTTPRequest() throws IOException, ParseException {
-
-
         String userName = txtFieldUser.getText();
 
         if(!txtFieldUser.getText().isEmpty()) {
@@ -144,11 +119,8 @@ public class Main extends Application {
             //System.out.println("RESPONSE :: " + httpConnection.getResponseCode());
             txtStatus.setText("Response : " + httpConnection.getResponseCode());
 
-
             InputStreamReader reader = new InputStreamReader(httpConnection.getInputStream());
-
             StringBuilder strB = new StringBuilder();
-
             BufferedReader bufferedReader = new BufferedReader(reader);
 
             if (bufferedReader != null) {
@@ -160,14 +132,10 @@ public class Main extends Application {
             }
 
             //txtArea.setText(strB.toString());
-
-
             JSONParser jsonParser = new JSONParser();
             jsonObject = (JSONObject) jsonParser.parse(strB.toString());
 
-
             String repoStr = (String) jsonObject.get("repos_url");
-
 
             userImageRequest = Executors.newSingleThreadExecutor();
             Runnable task = new Runnable() {
@@ -254,10 +222,8 @@ public class Main extends Application {
 
                 }
             });
-
-
-
     }
+
     public void userImageHttpRequesting() throws IOException {
 
             String userImageURL = (String) jsonObject.get("avatar_url");
@@ -331,14 +297,6 @@ public class Main extends Application {
         listView = (ListView) root.lookup("#listViewRepos");
         listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
-        /*******************************/
-        /*     REPO PAGE               */
-        /********************************/
-
-        txtRepoName = (Text) repoRoot.lookup("#txtRepoName");
-        txtRepoDesctiption = (Text) repoRoot.lookup("#txtRepoDetail");
-        txtRepoLang = (Text) repoRoot.lookup("#txtRepoLang");
-
     }
 
 
@@ -358,33 +316,22 @@ public class Main extends Application {
         btnRepoDetails.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                repoDetailPageSetting();
+                // TODO: 7.12.2017 add here the repo page
+                ObservableList<String> selectedList = getListViewSelections();
+
+                try {
+                    repoPage = new RepoPage(selectedList.get(0),userRepoDetails);
+                    repoPage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
 
-    public void repoDetailPageSetting(){
-        ObservableList <String> selectedRepo = getListViewSelections();
-        txtStatus.setText(selectedRepo.get(0));
-        txtRepoName.setText(selectedRepo.get(0));
-        JSONObject jsonObject = getSelectedRepoJson(selectedRepo.get(0));
 
-        //txtRepoDesctiption.setText((String) jsonObject.get("description"));
-        txtRepoLang.setText((String) jsonObject.get("language"));
-        repoStage.show();
-
-        String commitsURL = (String) jsonObject.get("commits_url");
-        commitsURL = commitsURL.substring(0,commitsURL.length() - 6);
-
-        System.out.println(commitsURL);
-
-
-        commitRequest(commitsURL);
-
-
-        // TODO: 30.11.2017 add the commit request here
-
-    }
 
     public ObservableList<String> getListViewSelections(){
         ObservableList<String> observableList;
@@ -392,82 +339,7 @@ public class Main extends Application {
         return  observableList;
     }
 
-    public JSONObject getSelectedRepoJson(String repoName){
-        JSONObject result = null;
-        for(int i = 0 ; i < repoJsonArray.size(); ++i){
-            JSONObject jsonObject = (JSONObject) repoJsonArray.get(i);
-            if(repoName.equals(jsonObject.get("name"))){
-                result = jsonObject;
-            }
-        }
-        return result;
-    }
 
-    public void commitRequest(String commitURL){
-        commitRequestExecutor = Executors.newSingleThreadExecutor();
-
-        Runnable task = new Runnable() {
-            String url = commitURL;
-            @Override
-            public void run() {
-                try {
-                    commitHttpRequest(url);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-
-        commitRequestExecutor.execute(task);
-        commitRequestExecutor.shutdown();
-    }
-
-    public  void commitHttpRequest(String urlStr) throws IOException, ParseException {
-
-        URL url = new URL(urlStr);
-        HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
-
-        httpConnection.setDoOutput(true);
-
-        httpConnection.setRequestMethod("GET");
-        //System.out.println("RESPONSE :: " + httpConnection.getResponseCode());
-        txtStatus.setText("Response : " + httpConnection.getResponseCode());
-
-
-        InputStreamReader reader = new InputStreamReader(httpConnection.getInputStream());
-
-        StringBuilder strB = new StringBuilder();
-
-        BufferedReader bufferedReader = new BufferedReader(reader);
-
-        if (bufferedReader != null) {
-            int cp;
-            while ((cp = bufferedReader.read()) != -1) {
-                strB.append((char) cp);
-            }
-            bufferedReader.close();
-        }
-
-
-        JSONParser jsonParser = new JSONParser();
-        commitsJsonArr = (JSONArray) jsonParser.parse(strB.toString());
-        commitShowing();
-    }
-
-    public void commitShowing(){
-        JSONObject jsonObj = (JSONObject) commitsJsonArr.get(2);
-        JSONObject jsonObjCommit = (JSONObject) jsonObj.get("commit");
-        
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                txtRepoDesctiption.setText((String) jsonObjCommit.get("message"));
-            }
-        });
-
-    }
 }
 
 
