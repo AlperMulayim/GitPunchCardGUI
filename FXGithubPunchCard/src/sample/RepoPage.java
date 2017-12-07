@@ -1,10 +1,13 @@
 package sample;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.json.simple.JSONArray;
@@ -12,11 +15,15 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import javafx.scene.control.TableColumn;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.StringJoiner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -33,6 +40,8 @@ public class RepoPage {
     private JSONArray commitsJsonArr;
     private String repoName;
     private ExecutorService commitRequestExecutor;
+    private TableView<Commit> tableView;
+
 
 
 
@@ -42,10 +51,13 @@ public class RepoPage {
         repoStage.setTitle("Repo");
         repoStage.setScene(new Scene(repoRoot, 1054, 756));
 
+        commitsJsonArr = new JSONArray();
         this.repoName = selectedRepo;
+
         JSONParser jsonParser = new JSONParser();
         repoJsonArray = (JSONArray) jsonParser.parse(repoJsonStr);
         prepareGUIElements();
+
 
 
     }
@@ -54,6 +66,7 @@ public class RepoPage {
         txtRepoName = (Text) repoRoot.lookup("#txtRepoName");
         txtRepoDesctiption = (Text) repoRoot.lookup("#txtRepoDetail");
         txtRepoLang = (Text) repoRoot.lookup("#txtRepoLang");
+        tableView = (TableView) repoRoot.lookup("#tableVRepo");
 
         txtRepoLang.setText("*");
         repoDetailPageSetting();
@@ -80,19 +93,26 @@ public class RepoPage {
 
         commitRequest(commitsURL);
 
+
         // TODO: 30.11.2017 add the commit request here
     }
 
-    public void commitShowing(){
-        JSONObject jsonObj = (JSONObject) commitsJsonArr.get(2);
-        JSONObject jsonObjCommit = (JSONObject) jsonObj.get("commit");
+    public ObservableList<Commit> getCommitList(){
+         ObservableList<Commit> commitList = FXCollections.observableArrayList();
 
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                txtRepoDesctiption.setText((String) jsonObjCommit.get("message"));
-            }
-        });
+        for(int i = 0 ; i< commitsJsonArr.size(); ++i){
+            JSONObject jsonObject = (JSONObject) commitsJsonArr.get(i);
+
+
+            JSONObject commitObj = (JSONObject) jsonObject.get("commit");
+            JSONObject committerObj = (JSONObject) commitObj.get("committer");
+            String date = (String) committerObj.get("date");
+            String  committerName = (String) committerObj.get("name");
+            String  message = (String) commitObj.get("message");
+
+            commitList.add(new Commit(committerName,message,date));
+        }
+        return commitList;
     }
 
     public JSONObject getSelectedRepoJson(String repoName){
@@ -153,7 +173,17 @@ public class RepoPage {
 
         JSONParser jsonParser = new JSONParser();
         commitsJsonArr = (JSONArray) jsonParser.parse(strB.toString());
-        commitShowing();
+
+        setTableView();
     }
 
+    public void setTableView(){
+        TableColumn<Commit,String> nameColumn = new TableColumn<>("Name");
+        nameColumn.setMinWidth(80);
+        nameColumn.setCellValueFactory(new PropertyValueFactory<Commit, String>("committer"));
+
+        tableView.setItems(getCommitList());
+        tableView.getColumns().addAll(nameColumn);
+
+    }
 }
