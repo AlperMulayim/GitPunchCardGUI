@@ -119,7 +119,7 @@ public class Main extends Application {
             //System.out.println("RESPONSE :: " + httpConnection.getResponseCode());
             txtStatus.setText("Response : " + httpConnection.getResponseCode());
 
-            InputStreamReader reader = new InputStreamReader(httpConnection.getInputStream());
+            InputStreamReader reader = new InputStreamReader(httpConnection.getInputStream(),"UTF8");
             StringBuilder strB = new StringBuilder();
             BufferedReader bufferedReader = new BufferedReader(reader);
 
@@ -192,7 +192,7 @@ public class Main extends Application {
 
         // TODO: 20.11.2017  kill the thread
         // TODO: 20.11.2017 put them to listviews
-        InputStreamReader reader = new InputStreamReader(httpURLConnection.getInputStream());
+        InputStreamReader reader = new InputStreamReader(httpURLConnection.getInputStream(),"UTF8");
         BufferedReader bufferedReader = new BufferedReader(reader);
 
         StringBuilder strB = new StringBuilder();

@@ -167,7 +167,7 @@ public class RepoPage {
 
         httpConnection.setRequestMethod("GET");
 
-        InputStreamReader reader = new InputStreamReader(httpConnection.getInputStream());
+        InputStreamReader reader = new InputStreamReader(httpConnection.getInputStream(), "UTF8");
 
         StringBuilder strB = new StringBuilder();
 
