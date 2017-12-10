@@ -15,24 +15,32 @@
                <children>
                   <HBox prefHeight="57.0" prefWidth="1050.0">
                      <children>
-                        <Text fx:id="txtRepoName" strokeType="OUTSIDE" strokeWidth="0.0" text="RepoName" textAlignment="CENTER" wrappingWidth="911.826171875">
+                        <Text fx:id="txtRepoName" strokeType="OUTSIDE" strokeWidth="0.0" text="RepoName" textAlignment="CENTER" wrappingWidth="863.826171875">
                            <font>
                               <Font size="24.0" />
                            </font>
                         </Text>
-                        <Text fx:id="txtRepoLang" opacity="0.46" strokeType="OUTSIDE" strokeWidth="0.0" text="Lang." textAlignment="CENTER" wrappingWidth="103.826171875">
+                        <Text fx:id="txtRepoLang" opacity="0.46" strokeType="OUTSIDE" strokeWidth="0.0" text="Lang." textAlignment="CENTER" wrappingWidth="186.826171875">
                            <font>
                               <Font size="36.0" />
                            </font>
                         </Text>
                      </children>
                   </HBox>
-                  <Text fx:id="txtRepoDetail" opacity="0.53" strokeType="OUTSIDE" strokeWidth="0.0" text="REPO DETAILS" wrappingWidth="1049.0">
+                  <Text fx:id="txtRepoDetail" opacity="0.53" strokeType="OUTSIDE" strokeWidth="0.0" text="REPO DETAILS" wrappingWidth="1050.0">
                      <font>
                         <Font size="16.0" />
                      </font>
                   </Text>
-                  <Text fx:id="txtCommitCount" strokeType="OUTSIDE" strokeWidth="0.0" text="Commit Count" wrappingWidth="1050.826171875" />
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Text fx:id="txtCommitCount" strokeType="OUTSIDE" strokeWidth="0.0" text="Commit Count" wrappingWidth="536.826171875" />
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="CreateDate : " wrappingWidth="91.7548828125" />
+                        <Text fx:id="txtRepoDate" strokeType="OUTSIDE" strokeWidth="0.0" text="CreateDate" wrappingWidth="160.0498046875" />
+                        <Text strokeType="OUTSIDE" strokeWidth="0.0" text="UpdateDate : " wrappingWidth="90.9912109375" />
+                        <Text fx:id="txtRepoUpdateDate" strokeType="OUTSIDE" strokeWidth="0.0" text="UpdateDATE" wrappingWidth="156.544921875" />
+                     </children>
+                  </HBox>
                </children>
             </VBox>
             <TableView fx:id="tableVRepo" prefHeight="340.0" prefWidth="980.0" />

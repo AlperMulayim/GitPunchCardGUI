@@ -37,6 +37,8 @@ public class RepoPage {
     private Text txtRepoName;
     private Text txtRepoDesctiption;
     private Text txtRepoLang;
+    private Text txtRepoCreateDate;
+    private  Text txtRepoUpdateDate;
     private JSONArray repoJsonArray;
     private JSONArray commitsJsonArr;
     private String repoName;
@@ -69,8 +71,9 @@ public class RepoPage {
         txtRepoLang = (Text) repoRoot.lookup("#txtRepoLang");
         tableView = (TableView) repoRoot.lookup("#tableVRepo");
         txtCommitCount = (Text) repoRoot.lookup("#txtCommitCount");
+        txtRepoCreateDate = (Text) repoRoot.lookup("#txtRepoDate");
+        txtRepoUpdateDate = (Text) repoRoot.lookup("#txtRepoUpdateDate");
 
-        txtRepoLang.setText("*");
         repoDetailPageSetting();
     }
 
@@ -87,6 +90,11 @@ public class RepoPage {
         txtRepoLang.setText((String) jsonObject.get("language"));
 
 
+        String createdDate = (String) jsonObject.get("created_at");
+        String updateDate = (String) jsonObject.get("updated_at");
+
+        txtRepoCreateDate.setText(createdDate);
+        txtRepoUpdateDate.setText(updateDate);
         String commitsURL = (String) jsonObject.get("commits_url");
         commitsURL = commitsURL.substring(0,commitsURL.length() - 6);
 
