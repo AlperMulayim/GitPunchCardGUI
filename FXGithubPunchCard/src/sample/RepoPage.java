@@ -3,9 +3,12 @@ package sample;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -22,9 +25,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.StringJoiner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -43,10 +43,21 @@ public class RepoPage {
     private JSONArray commitsJsonArr;
     private String repoName;
     private ExecutorService commitRequestExecutor;
+    private  ExecutorService readmeExecutor;
     private TableView<Commit> tableView;
     private Text txtCommitCount;
+    private Button btnReadMe;
 
+    String repoUrl;
 
+    /**
+     * https://api.github.com/repos/AlperMulayim/OperatingSystem
+     * https://api.github.com/repos/AlperMulayim/OperatingSystem/readme
+     * @param selectedRepo
+     * @param repoJsonStr
+     * @throws IOException
+     * @throws ParseException
+     */
 
     public RepoPage( String selectedRepo,String repoJsonStr) throws IOException, ParseException {
         repoRoot = FXMLLoader.load(getClass().getResource("repodetails.fxml"));
@@ -74,12 +85,15 @@ public class RepoPage {
         txtRepoCreateDate = (Text) repoRoot.lookup("#txtRepoDate");
         txtRepoUpdateDate = (Text) repoRoot.lookup("#txtRepoUpdateDate");
 
+        btnReadMe = (Button) repoRoot.lookup("#btnReadMe");
+        buttonActions();
         repoDetailPageSetting();
     }
 
     public void show(){
         repoStage.show();
     }
+
     public void repoDetailPageSetting() throws IOException {
 
         //txtStatus.setText(selectedRepo.get(0));
@@ -100,11 +114,14 @@ public class RepoPage {
 
         System.out.println(commitsURL);
 
-
+        repoUrl = (String) jsonObject.get("url");
+        System.out.println(repoUrl);
+        repoUrl += "/readme";
+        System.out.println(repoUrl);
         commitRequest(commitsURL);
 
 
-        // TODO: 30.11.2017 add the commit request here
+        // TODO: 13.12.2017  Read Me request add here
     }
 
     public ObservableList<Commit> getCommitList(){
@@ -188,6 +205,91 @@ public class RepoPage {
         setTableView();
     }
 
+
+    public void readMeRequest(String readMeURL){
+        readmeExecutor = Executors.newSingleThreadExecutor();
+
+        Runnable task = new Runnable() {
+            String url = readMeURL;
+            @Override
+            public void run() {
+                try {
+                    readMHTTPRequest(url);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        readmeExecutor.execute(task);
+        readmeExecutor.shutdown();
+    }
+
+
+    public void readMHTTPRequest(String urlStr) throws IOException, ParseException {
+        URL url = new URL(urlStr);
+        HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
+
+        httpConnection.setDoOutput(true);
+
+        httpConnection.setRequestMethod("GET");
+
+        InputStreamReader reader = new InputStreamReader(httpConnection.getInputStream(), "UTF8");
+
+        StringBuilder strB = new StringBuilder();
+
+        BufferedReader bufferedReader = new BufferedReader(reader);
+
+        if (bufferedReader != null) {
+            int cp;
+            while ((cp = bufferedReader.read()) != -1) {
+                strB.append((char) cp);
+            }
+            bufferedReader.close();
+        }
+
+
+        JSONParser jsonParser = new JSONParser();
+        JSONObject readMEObj = (JSONObject) jsonParser.parse(strB.toString());
+
+       // System.err.println(readMEObj.toString());
+        rawReadMeRequest((String) readMEObj.get("download_url"));
+
+
+    }
+
+    public void rawReadMeRequest(String urlStr) throws IOException, ParseException {
+        URL url = new URL(urlStr);
+        HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
+
+        httpConnection.setDoOutput(true);
+
+        httpConnection.setRequestMethod("GET");
+
+        InputStreamReader reader = new InputStreamReader(httpConnection.getInputStream(), "UTF8");
+
+        StringBuilder strB = new StringBuilder();
+
+        BufferedReader bufferedReader = new BufferedReader(reader);
+
+        if (bufferedReader != null) {
+            int cp;
+            while ((cp = bufferedReader.read()) != -1) {
+                strB.append((char) cp);
+            }
+            bufferedReader.close();
+        }
+
+
+        System.err.println(strB.toString());
+
+    }
+
+
+
+
     public void setTableView(){
         TableColumn<Commit,String> nameColumn = new TableColumn<>("Name");
         nameColumn.setMinWidth(80);
@@ -204,7 +306,16 @@ public class RepoPage {
         tableView.setItems(getCommitList());
         tableView.getColumns().addAll(dateColumn,nameColumn,messageColumn);
 
+    }
 
-
+    public void buttonActions(){
+        btnReadMe.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if(repoUrl != null) {
+                    readMeRequest(repoUrl);
+                }
+            }
+        });
     }
 }

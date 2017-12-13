@@ -1,13 +1,20 @@
 .button-search{
     -fx-text-fill:#E1F5FE ;
-    -fx-background-color: #03A9F4;
+    -fx-background-color: #0091EA;
     -fx-font-weight: bold;
     
 }
 .button-show{
     -fx-text-fill:#E1F5FE ;
-    -fx-background-color: #03A9F4;
+    -fx-background-color: #0091EA;
     -fx-font-weight: bold;
+}
+
+.button-show:hover{
+    -fx-background-color: #01579B;
+}
+.button-search:hover{
+    -fx-background-color: #01579B;
 }
 
 .image-sty{
