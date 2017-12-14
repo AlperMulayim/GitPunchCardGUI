@@ -1,3 +1,13 @@
 .background{
     -fx-background-image: url("../images/background.png");
 }
+
+.button-readme{
+    -fx-text-fill:#E1F5FE ;
+    -fx-background-color: #0091EA;
+    -fx-font-weight: bold;
+}
+
+.button-readme:hover{
+    -fx-background-color: #01579B;
+}

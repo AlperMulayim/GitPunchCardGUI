@@ -65,6 +65,9 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         root = FXMLLoader.load(getClass().getResource("sample.fxml"));
+
+        Image icon = new Image(getClass().getResourceAsStream("/images/icon.png"));
+        primaryStage.getIcons().add(icon);
         primaryStage.setTitle("GitHub PunchCard");
         primaryStage.setScene(new Scene(root, 670, 480));
 
@@ -76,9 +79,6 @@ public class Main extends Application {
         buttonActions();
 
     }
-
-
-
 
 
     public static void main(String[] args) {
@@ -95,6 +95,7 @@ public class Main extends Application {
                     userHTTPRequest();
                 } catch (IOException e) {
                     e.printStackTrace();
+                    txtStatus.setText("Cannot Connect Internet");
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }

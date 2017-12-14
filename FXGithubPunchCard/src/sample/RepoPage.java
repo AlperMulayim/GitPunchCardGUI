@@ -8,10 +8,9 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.json.simple.JSONArray;
@@ -19,7 +18,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import javafx.scene.control.TableColumn;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -47,6 +45,7 @@ public class RepoPage {
     private TableView<Commit> tableView;
     private Text txtCommitCount;
     private Button btnReadMe;
+    private TextArea txtAreaReadMe;
 
     String repoUrl;
 
@@ -62,6 +61,8 @@ public class RepoPage {
     public RepoPage( String selectedRepo,String repoJsonStr) throws IOException, ParseException {
         repoRoot = FXMLLoader.load(getClass().getResource("repodetails.fxml"));
         repoStage = new Stage();
+        Image icon = new Image(getClass().getResourceAsStream("/images/icon.png"));
+        repoStage.getIcons().add(icon);
         repoStage.setTitle("Repo");
         repoStage.setScene(new Scene(repoRoot, 1054, 756));
 
@@ -84,6 +85,7 @@ public class RepoPage {
         txtCommitCount = (Text) repoRoot.lookup("#txtCommitCount");
         txtRepoCreateDate = (Text) repoRoot.lookup("#txtRepoDate");
         txtRepoUpdateDate = (Text) repoRoot.lookup("#txtRepoUpdateDate");
+        txtAreaReadMe = (TextArea) repoRoot.lookup("#txtAreaReadMe");
 
         btnReadMe = (Button) repoRoot.lookup("#btnReadMe");
         buttonActions();
@@ -283,8 +285,14 @@ public class RepoPage {
         }
 
 
-        System.err.println(strB.toString());
+        //System.err.println(strB.toString());
 
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                txtAreaReadMe.setText(strB.toString());
+            }
+        });
     }
 
 
